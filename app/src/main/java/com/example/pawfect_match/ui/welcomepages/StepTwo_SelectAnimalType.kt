@@ -31,11 +31,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Step two in the onboarding flow where the user selects a type of animal to adopt.
+ *
+ * Displays a grid of emoji animal icons with labels. Selection is stored locally.
+ * Includes a "Continue" button and onboarding progress bar.
+ */
 @Composable
-// @Preview
+@Preview
 fun StepTwo_SelectAnimalType() {
     val selectedIndex = remember { mutableStateOf(-1) }
 
+    /**
+     * List of animal types represented as emoji + label (split by newline).
+     */
     val animalTypes = listOf(
         "\uD83D\uDC15 \n Dogs",
         "\uD83D\uDC08 \n Cats",
@@ -48,8 +57,18 @@ fun StepTwo_SelectAnimalType() {
         "\uD83D\uDC3E \n Other"
     )
 
+    /**
+     * Root layout containing title, grid of animal types, and continue button.
+     */
     Column(modifier = Modifier.padding(24.dp).fillMaxHeight()) {
+        /**
+         * Step progress indicator with back button (step 2 of 3).
+         */
         OnboardingTopBar(step = 2, onBack = { /* TODO: вернуться назад */ })
+
+        /**
+         * Main headline and explanation.
+         */
         Text("Let's Find Your Match!", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -59,6 +78,9 @@ fun StepTwo_SelectAnimalType() {
         )
         Spacer(modifier = Modifier.height(24.dp))
 
+        /**
+         * Grid layout for animal type selection.
+         */
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             // modifier = Modifier.fillMaxHeight(),
@@ -81,6 +103,9 @@ fun StepTwo_SelectAnimalType() {
                         .aspectRatio(1f),
                     shape = RoundedCornerShape(20.dp)
                 ) {
+                    /**
+                     * Inside each button: emoji and label vertically centered.
+                     */
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -102,6 +127,10 @@ fun StepTwo_SelectAnimalType() {
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        /**
+         * Continue button anchored to the bottom of the screen.
+         */
         Box(
             modifier = Modifier.fillMaxSize()
         ) {

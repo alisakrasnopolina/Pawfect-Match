@@ -7,45 +7,55 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.ui.draw.clip
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.ui.tooling.preview.Preview
 
-
+/**
+ * Returns a corresponding emoji for a given animal category name.
+ *
+ * @param category Animal category as string.
+ * @return A string emoji representing the category.
+ */
 fun getEmojiForCategory(category: String): String = when (category) {
     "Dogs" -> "🐕"
     "Cats" -> "🐈"
@@ -58,20 +68,39 @@ fun getEmojiForCategory(category: String): String = when (category) {
     else -> ""
 }
 
+/**
+ * Represents a simple pet object used in listings.
+ *
+ * @param name Pet's name.
+ * @param breed Pet's breed.
+ * @param distance Distance from the user in kilometers.
+ * @param imageUrl URL to the pet's photo.
+ */
 data class Pet(val name: String, val breed: String, val distance: String, val imageUrl: String)
 
+
+/**
+ * Returns a list of sample pets for display purposes.
+ */
 fun getSamplePets() = listOf(
     Pet("Mochi", "Abyssinian", "3", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
     Pet("Luna", "Chihuahua", "1.4", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
     Pet("Casper", "Maine Coon", "2.1", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg")
 )
 
+/**
+ * Main home screen displaying top banner, category filters, and pet suggestions.
+ * Includes bottom navigation and dynamic pet data.
+ */
 @Composable
 @Preview
 fun HomeScreen() {
     val bottomNavItems = listOf("Home", "Search", "Favorites", "Account")
     var selectedItem by remember { mutableStateOf("Home") }
 
+    /**
+     * Bottom navigation bar with icons for main sections.
+     */
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -107,7 +136,9 @@ fun HomeScreen() {
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // Header
+            /**
+             * Header section with logo, title, search and notifications.
+             */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,7 +178,9 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Banner
+            /**
+             * Banner section promoting adoption.
+             */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,7 +208,9 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Categories
+            /**
+             * Category grid showing animal types as emoji buttons.
+             */
             val categories = listOf("Dogs", "Cats", "Rabbits", "Birds", "Small&Furry", "Fish", "Horse", "Other")
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
@@ -194,7 +229,9 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Pets Near You
+            /**
+             * "Pets Near You" section with horizontal scroll of pet cards.
+             */
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -238,7 +275,10 @@ fun HomeScreen() {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            // Pets on Your Preferences
+
+            /**
+             * "Pets on Your Preferences" section with horizontally scrollable cards.
+             */
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

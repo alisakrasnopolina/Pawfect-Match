@@ -23,12 +23,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,14 +38,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pawfect_match.R
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 
-
+/**
+ * Final step in the onboarding flow where the user fills in personal profile details
+ * such as name, phone number, gender, and profile photo.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
@@ -57,7 +59,15 @@ fun StepFour_FinalProfile() {
     val genders = listOf("Male", "Female", "Other")
 
     Column(modifier = Modifier.padding(24.dp)) {
+
+        /**
+         * Top bar with progress and back button (step 3 of 3).
+         */
         OnboardingTopBar(step = 3, onBack = { /* TODO: вернуться назад */ })
+
+        /**
+         * Heading and subtitle for context.
+         */
         Text("Final Steps!", fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -68,7 +78,9 @@ fun StepFour_FinalProfile() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Фото профиля
+        /**
+         * Profile image with edit icon overlay (static placeholder).
+         */
         Box(
             modifier = Modifier
                 .size(96.dp)
@@ -95,7 +107,9 @@ fun StepFour_FinalProfile() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Поле "Имя"
+        /**
+        * Full name text input field.
+        */
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
@@ -107,7 +121,9 @@ fun StepFour_FinalProfile() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Поле "Телефон"
+        /**
+         * Phone number input with phone icon and numeric keyboard.
+         */
         OutlinedTextField(
             value = phone,
             onValueChange = { phone = it },
@@ -123,7 +139,9 @@ fun StepFour_FinalProfile() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Пол
+        /**
+         * Gender dropdown selector using ExposedDropdownMenu.
+         */
         ExposedDropdownMenuBox(
             expanded = genderExpanded,
             onExpandedChange = { genderExpanded = !genderExpanded }
@@ -154,6 +172,10 @@ fun StepFour_FinalProfile() {
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        /**
+         * "Finish" button fixed to bottom to submit final data.
+         */
         Box(
             modifier = Modifier.fillMaxSize()
         ) {

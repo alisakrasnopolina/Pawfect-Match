@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,9 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
@@ -49,6 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 
+/**
+ * Preview for the search results screen with sample pet data.
+ */
 @Preview
 @Composable
 fun PreviewSearchResultsScreen() {
@@ -64,6 +64,14 @@ fun PreviewSearchResultsScreen() {
     )
 }
 
+/**
+ * Screen displaying the list of pets filtered by category.
+ *
+ * @param pets List of pets matching the filter criteria.
+ * @param selectedType Currently selected pet type filter.
+ * @param onTypeSelected Callback triggered when a filter chip is selected.
+ * @param onSearchClick Callback triggered when the search icon is clicked.
+ */
 @Composable
 fun SearchResultsScreen(
     pets: List<Pet>,
@@ -77,6 +85,9 @@ fun SearchResultsScreen(
     var selectedItem by remember { mutableStateOf("Search") }
 
     Scaffold(
+        /**
+         * Bottom navigation bar for main navigation.
+         */
         bottomBar = {
             NavigationBar {
                 bottomNavItems.forEach { item ->
@@ -109,7 +120,9 @@ fun SearchResultsScreen(
             .padding(padding)
             .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // Top Bar
+            /**
+             * Top bar with centered title and search icon.
+             */
             Box(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -128,7 +141,9 @@ fun SearchResultsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Pet Type Filters
+            /**
+             * Horizontal row of filter chips representing pet types.
+             */
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(petTypes) { type ->
                     FilterChipResults(
@@ -141,7 +156,9 @@ fun SearchResultsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Grid of Pets
+            /**
+             * Grid of pet result cards.
+             */
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -186,6 +203,13 @@ fun SearchResultsScreen(
     }
 }
 
+/**
+ * Composable for a rounded filter chip used to select pet types.
+ *
+ * @param text The label for the chip (e.g., 🐶 Dogs).
+ * @param selected Whether this chip is currently selected.
+ * @param onClick Callback when the chip is tapped.
+ */
 @Composable
 fun FilterChipResults(text: String, selected: Boolean, onClick: () -> Unit) {
     val background = if (selected) Color.Green else Color.White

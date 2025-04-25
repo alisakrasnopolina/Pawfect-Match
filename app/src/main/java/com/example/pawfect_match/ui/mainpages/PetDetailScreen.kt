@@ -1,35 +1,46 @@
 package com.example.pawfect_match.ui.mainpages
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Modifier
-
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.clickable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 
-
+/**
+ * Preview version of the pet detail screen with dummy pet data.
+ */
 @Preview
 @Composable
 fun PreviewPetDetailScreen() {
@@ -38,6 +49,7 @@ fun PreviewPetDetailScreen() {
             name = "Mochi",
             breed = "Abyssinian",
             distance = "1.2 km",
+            imageUrl = "",
             gender = "Male",
             age = "Adult",
             size = "Medium",
@@ -53,12 +65,24 @@ fun PreviewPetDetailScreen() {
     )
 }
 
+/**
+ * Detailed screen that displays information about a selected pet.
+ *
+ * @param pet The pet to be displayed in detail.
+ * @param onBackClick Callback triggered when the back button is pressed.
+ * @param onAdoptClick Callback triggered when the adopt button is pressed.
+ */
 @Composable
 fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
+        /**
+         * Scrollable column with pet content and shelter details.
+         */
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
 
-            // Header with back
+            /**
+             * Header with back arrow and centered title.
+             */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,7 +100,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
             }
 
 
-            // Image block
+            /**
+             * Pet image placeholder with position indicator.
+             */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -85,6 +111,15 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                     .padding(bottom = 8.dp),
                 contentAlignment = Alignment.BottomCenter
             ) {
+                AsyncImage(
+                    model = pet.imageUrl,
+                    contentDescription = "Pet Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
                 Text("1 / 5", color = Color.White, modifier = Modifier
                     .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(20))
                     .padding(horizontal = 12.dp, vertical = 4.dp))
@@ -93,7 +128,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
             Spacer(modifier = Modifier.height(8.dp))
 
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                // Pet name and breed
+                /**
+                 * Pet name and breed.
+                 */
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(pet.name, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -103,7 +140,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Info chips
+                /**
+                 * Info chips for gender, age, and size.
+                 */
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                     InfoChip("Gender", pet.gender, Color(0xFFFFEBEE), Modifier.weight(1f))
                     InfoChip("Age", pet.age, Color(0xFFF1F8E9), Modifier.weight(1f))
@@ -112,7 +151,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Shelter info
+                /**
+                 * Shelter information row with send icon.
+                 */
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier
                         .size(40.dp)
@@ -129,6 +170,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                /**
+                 * Pet descriptive sections.
+                 */
                 Text("About ${pet.name}", fontWeight = FontWeight.Bold)
                 Text(pet.description, lineHeight = 20.sp)
 
@@ -148,6 +192,10 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
             }
 
         }
+
+        /**
+         * Bottom row with favorite icon and adopt button.
+         */
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,6 +229,14 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
     }
 }
 
+/**
+ * Composable displaying a small rounded info card with label and value.
+ *
+ * @param label Label of the information (e.g., Gender, Age).
+ * @param value Value associated with the label.
+ * @param backgroundColor Background color of the chip.
+ * @param modifier Modifier for layout control (e.g., weight).
+ */
 @Composable
 fun InfoChip(
     label: String,
@@ -200,11 +256,14 @@ fun InfoChip(
 }
 
 
-// Example data class
+/**
+ * Data class containing all pet-related information for the detail screen.
+ */
 data class PetDetails(
     val name: String,
     val breed: String,
     val distance: String,
+    val imageUrl: String,
     val gender: String,
     val age: String,
     val size: String,

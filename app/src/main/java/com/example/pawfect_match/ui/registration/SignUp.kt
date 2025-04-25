@@ -1,21 +1,8 @@
 package com.example.pawfect_match.ui.registration
 
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,34 +13,48 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Icon
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
-
+/**
+ * Composable screen that allows new users to sign up for the Pawfect Match app.
+ * Includes fields for email and password, agreement to terms, and navigation to login.
+ */
 @Composable
-//@Preview
+@Preview
 fun SignUpScreen() {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     val agreeTerms = remember { mutableStateOf(false) }
 
+    /**
+     * Main scrollable vertical layout.
+     */
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,6 +62,9 @@ fun SignUpScreen() {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        /**
+         * Back arrow icon (navigation not implemented yet).
+         */
         IconButton(
             onClick = { /* Back navigation */ },
             modifier = Modifier.align(Alignment.Start)
@@ -70,6 +74,9 @@ fun SignUpScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        /**
+         * Section with intro text and input fields.
+         */
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Start
@@ -82,6 +89,9 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            /**
+             * Email input field.
+             */
             Text("Email")
             OutlinedTextField(
                 value = email.value,
@@ -93,6 +103,9 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            /**
+             * Password input field with visibility toggle.
+             */
             Text("Password")
             OutlinedTextField(
                 value = password.value,
@@ -114,6 +127,9 @@ fun SignUpScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        /**
+         * Agreement checkbox for terms and conditions.
+         */
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = agreeTerms.value,
@@ -130,6 +146,10 @@ fun SignUpScreen() {
         }
 
         Spacer(modifier = Modifier.height(8.dp))
+
+        /**
+         * Link to login screen for existing users.
+         */
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Already have an account? ")
             Text(
@@ -153,6 +173,10 @@ fun SignUpScreen() {
         Spacer(modifier = Modifier.height(32.dp))
 
     }
+
+    /**
+     * Sign up button fixed to the bottom of the screen.
+     */
     Box(
         modifier = Modifier
             .fillMaxSize()
