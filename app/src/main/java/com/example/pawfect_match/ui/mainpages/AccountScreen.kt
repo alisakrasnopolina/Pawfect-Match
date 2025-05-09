@@ -1,5 +1,6 @@
 package com.example.pawfect_match.ui.mainpages
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,26 +51,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import com.example.pawfect_match.data.firebase.FirebaseAuthManager
+import com.example.pawfect_match.viewmodel.UserViewModel
 
-@Preview
-@Composable
-fun AccountScreenPreview() {
-    AccountScreen()
-}
+//@Preview
+//@Composable
+//fun AccountScreenPreview(navController: NavController, userViewModel: UserViewModel, onLogout: () -> Unit) {
+//    AccountScreen()
+//}
 
 /**
  * Main screen displaying user account information.
  * Includes user avatar, personal details and action buttons like Edit and Logout.
  */
 @Composable
-fun AccountScreen() {
+fun AccountScreen(
+    navController: NavController = rememberNavController(),
+    userViewModel: UserViewModel = viewModel(),
+    onLogout: () -> Unit
+) {
     var selectedItem by remember { mutableStateOf("Account") }
+    val user by userViewModel.user.collectAsState()
 
-    /**
-     * Main screen displaying user account information.
-     * Includes user avatar, personal details and action buttons like Edit and Logout.
-     */
+    val name = user?.name ?: "..."
+    val email = user?.email ?: "..."
+    val phone = user?.phone ?: "..."
+    val gender = user?.gender ?: "..."
+    val profileImage = user?.profileImageUrl ?: ""
+    val birthDate = user?.birthdate ?: "..."
+
     Scaffold(
         bottomBar = {
             val bottomNavItems = listOf("Home", "Search", "Favorites", "Account")
@@ -85,7 +100,15 @@ fun AccountScreen() {
                         },
                         label = { Text(item) },
                         selected = selectedItem == item,
-                        onClick = { selectedItem = item },
+                        onClick = {
+                            selectedItem = item
+                            when (item) {
+                                "Home" -> navController.navigate("home")
+                                "Search" -> navController.navigate("results")
+                                "Favorites" -> navController.navigate("favorites")
+                                "Account" -> navController.navigate("account")
+                            }
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.Green,
                             selectedTextColor = Color.Black,
@@ -123,7 +146,7 @@ fun AccountScreen() {
              */
             Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 AsyncImage(
-                    model = "https://randomuser.me/api/portraits/men/10.jpg",
+                    model = "",
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(100.dp)
@@ -151,11 +174,11 @@ fun AccountScreen() {
             /**
              * List of user info fields: name, email, phone, gender, birthdate.
              */
-            ProfileField(label = "Full Name", value = "Andrew Ainsley")
-            ProfileField(label = "Email", value = "andrew.ainsley@yourdomain.com", icon = Icons.Default.Email)
-            ProfileField(label = "Phone Number", value = "+1 111 467 378 399", icon = Icons.Default.Phone)
-            ProfileField(label = "Gender", value = "Male", icon = Icons.Default.KeyboardArrowDown)
-            ProfileField(label = "Birthdate", value = "12/25/1995", icon = Icons.Default.DateRange)
+            ProfileField(label = "Full Name", value = name)
+            ProfileField(label = "Email", value = email, icon = Icons.Default.Email)
+            ProfileField(label = "Phone Number", value = phone, icon = Icons.Default.Phone)
+            ProfileField(label = "Gender", value = gender, icon = Icons.Default.KeyboardArrowDown)
+            ProfileField(label = "Birthdate", value = birthDate, icon = Icons.Default.DateRange)
 
             /**
              * Action buttons at the bottom: Edit (outlined) and Logout (filled).
@@ -167,7 +190,7 @@ fun AccountScreen() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedButton(
-                    onClick = { /* TODO: Navigate to edit screen */ },
+                    onClick = { navController.navigate("editProfile") },
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp),
@@ -182,7 +205,7 @@ fun AccountScreen() {
                 }
 
                 Button(
-                    onClick = { /* TODO: Log out */ },
+                    onClick = onLogout,
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp),

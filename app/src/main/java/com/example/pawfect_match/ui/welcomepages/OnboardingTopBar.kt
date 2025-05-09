@@ -27,9 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.pawfect_match.viewmodel.UserViewModel
 
 /**
  * A composable top bar used in onboarding steps.
@@ -105,27 +107,29 @@ fun OnboardingNavHost() {
     val steps = listOf(
         "step1", "step2", "step3", "step4"
     )
+    val userViewModel: UserViewModel = viewModel()
 
     /**
      * Navigation host handling each step in the onboarding flow.
      */
     NavHost(navController = navController, startDestination = "step1") {
+
         composable("step1") {
             Column {
                 OnboardingTopBar(step = 1) { navController.popBackStack() }
-                StepOne_SelectUserType()
+                StepOne_SelectUserType(navController, userViewModel)
             }
         }
         composable("step2") {
             Column {
                 OnboardingTopBar(step = 2) { navController.popBackStack() }
-                StepTwo_SelectAnimalType()
+                StepTwo_SelectAnimalType(navController, userViewModel)
             }
         }
         composable("step3") {
             Column {
                 OnboardingTopBar(step = 3) { navController.popBackStack() }
-                StepFour_FinalProfile()
+                StepFour_FinalProfile(navController, userViewModel)
             }
         }
     }

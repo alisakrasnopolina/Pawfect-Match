@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
@@ -23,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +43,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.pawfect_match.R
+import com.example.pawfect_match.data.firebase.FirebaseAuthManager
+import com.example.pawfect_match.viewmodel.UserViewModel
+
+
 
 /**
  * Final step in the onboarding flow where the user fills in personal profile details
@@ -49,12 +56,13 @@ import com.example.pawfect_match.R
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun StepFour_FinalProfile() {
+// @Preview
+fun StepFour_FinalProfile(navController: NavController, userViewModel: UserViewModel) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var genderExpanded by remember { mutableStateOf(false) }
     var selectedGender by remember { mutableStateOf("Male") }
+    var birthdate by remember { mutableStateOf("") }
 
     val genders = listOf("Male", "Female", "Other")
 
@@ -63,7 +71,7 @@ fun StepFour_FinalProfile() {
         /**
          * Top bar with progress and back button (step 3 of 3).
          */
-        OnboardingTopBar(step = 3, onBack = { /* TODO: вернуться назад */ })
+        OnboardingTopBar(step = 3, onBack = { navController.popBackStack() })
 
         /**
          * Heading and subtitle for context.
@@ -153,7 +161,9 @@ fun StepFour_FinalProfile() {
                 label = { Text("Gender") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
                 modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                     .fillMaxWidth()
+
             )
             ExposedDropdownMenu(
                 expanded = genderExpanded,
@@ -171,6 +181,18 @@ fun StepFour_FinalProfile() {
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = birthdate,
+            onValueChange = { birthdate = it },
+            label = { Text("Birthdate") },
+            trailingIcon = {
+                Icon(Icons.Default.CalendarToday, contentDescription = null)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(32.dp))
 
         /**
@@ -180,7 +202,32 @@ fun StepFour_FinalProfile() {
             modifier = Modifier.fillMaxSize()
         ) {
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    val uid = FirebaseAuthManager.currentUser()?.uid
+                    if (uid != null) {
+                        userViewModel.updateFields(
+                            uid = uid,
+                            fields = mapOf(
+                                "name" to name,
+                                "phone" to phone,
+                                "gender" to selectedGender,
+                                "birthdate" to birthdate
+                            )
+                        )
+                    }
+
+//                    userViewModel.updateFields(
+//                        mapOf(
+//                            "name" to name,
+//                            "phone" to phone,
+//                            "gender" to selectedGender,
+//                            "birthdate" to birthdate
+//                        )
+//                    )
+                    navController.navigate("home") {
+                        popUpTo("signup") { inclusive = true }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),

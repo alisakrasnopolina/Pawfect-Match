@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  pawfect-app:
+    build: .
+    container_name: pawfect_android_app
+    environment:
+      - API_KEY=${API_KEY}
+      - PETFINDER_BASE_URL=${PETFINDER_BASE_URL}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+    volumes:
+      - .:/app

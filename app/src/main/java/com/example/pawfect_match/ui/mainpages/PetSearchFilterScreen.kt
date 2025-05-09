@@ -39,6 +39,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 /**
  * Composable screen for filtering pet search results.
@@ -48,12 +49,12 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
-@Preview
-fun PetSearchFilterScreen(onSearchClick: () -> Unit = {}) {
-    val selectedType = remember { mutableStateOf("Cats") }
-    val selectedGender = remember { mutableStateOf("Male") }
-    val selectedSize = remember { mutableStateOf("Medium") }
-    val selectedAge = remember { mutableStateOf("Adult") }
+// @Preview
+fun PetSearchFilterScreen(navController: NavController, onSearchClick: () -> Unit = {}) {
+    val selectedType = remember { mutableStateOf("") }
+    val selectedGender = remember { mutableStateOf("") }
+    val selectedSize = remember { mutableStateOf("") }
+    val selectedAge = remember { mutableStateOf("") }
 
     val types = listOf("Dogs", "Cats", "Rabbits", "Birds", "Reptiles", "Fish", "Primates", "Other")
     val genders = listOf("Any", "Male", "Female")
@@ -70,13 +71,17 @@ fun PetSearchFilterScreen(onSearchClick: () -> Unit = {}) {
             .padding(24.dp)
     ) {
         /**
-         * Top bar with title and back icon (currently not interactive).
+         * Top bar with title and back icon.
          */
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier
+                .clickable { navController.popBackStack() })
             Spacer(modifier = Modifier.width(16.dp))
             Text("Pet Search", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }

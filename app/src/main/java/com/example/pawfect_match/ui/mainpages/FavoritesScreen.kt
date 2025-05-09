@@ -1,5 +1,6 @@
 package com.example.pawfect_match.ui.mainpages
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,24 +50,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.example.pawfect_match.data.model.Pet
+import com.example.pawfect_match.viewmodel.FavoritesViewModel
+import androidx.navigation.NavController
+import com.example.pawfect_match.viewmodel.PetfinderViewModel
 
-/**
- * Preview for the Favorites screen using sample pet data.
- */
-@Preview
-@Composable
-fun PreviewFavoritesScreen() {
-    val samplePets = listOf(
-        Pet("Mochi", "Abyssinian", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
-        Pet("Clover", "Fauve de Bourgogne", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
-        Pet("Cleo", "Manx", "1.5 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
-        Pet("Luna", "Chihuahua", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
-        Pet("Fluffy", "Samoyed", "1.3 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
-        Pet("Chip", "Squirrel", "1.4 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg")
-    )
-    FavoritesScreen(pets = samplePets, onPetClick = {})
-}
+///**
+// * Preview for the Favorites screen using sample pet data.
+// */
+//@Preview
+//@Composable
+//fun PreviewFavoritesScreen() {
+//    val samplePets = listOf(
+//        Pet("Mochi", "Abyssinian", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
+//        Pet("Clover", "Fauve de Bourgogne", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
+//        Pet("Cleo", "Manx", "1.5 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
+//        Pet("Luna", "Chihuahua", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
+//        Pet("Fluffy", "Samoyed", "1.3 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
+//        Pet("Chip", "Squirrel", "1.4 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg")
+//    )
+//    FavoritesScreen(pets = samplePets, onPetClick = {})
+//}
 
 /**
  * Composable screen that displays the user's favorite pets.
@@ -73,9 +81,28 @@ fun PreviewFavoritesScreen() {
  * @param onPetClick Callback triggered when a pet card is clicked.
  */
 @Composable
-fun FavoritesScreen(pets: List<Pet>, onPetClick: (Pet) -> Unit) {
+fun FavoritesScreen(
+    navController: NavController,
+    viewModel: FavoritesViewModel,
+    petfinderViewModel: PetfinderViewModel,
+    onPetClick: (Pet) -> Unit) {
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
     val bottomNavItems = listOf("Home", "Search", "Favorites", "Account")
     var selectedItem by remember { mutableStateOf("Favorites") }
+    val pets by petfinderViewModel.pets.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadFavorites()
+        Log.d("LaunchedEffectFavoriteIds", "favoriteIds ${favoriteIds.joinToString()}")
+    }
+
+
+    LaunchedEffect(favoriteIds.joinToString()) {
+        if (favoriteIds.isNotEmpty()) {
+            Log.d("favoriteIds", "$favoriteIds.joinToString()")
+            petfinderViewModel.loadPetsByIds(favoriteIds)
+        }
+    }
 
     /**
      * Scaffold layout with bottom navigation.
@@ -95,7 +122,15 @@ fun FavoritesScreen(pets: List<Pet>, onPetClick: (Pet) -> Unit) {
                         },
                         label = { Text(item) },
                         selected = selectedItem == item,
-                        onClick = { selectedItem = item },
+                        onClick = {
+                            selectedItem = item
+                            when (item) {
+                                "Home" -> navController.navigate("home")
+                                "Search" -> navController.navigate("results")
+                                "Favorites" -> navController.navigate("favorites")
+                                "Account" -> navController.navigate("account")
+                            }
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.Green,
                             selectedTextColor = Color.Black,
@@ -111,7 +146,6 @@ fun FavoritesScreen(pets: List<Pet>, onPetClick: (Pet) -> Unit) {
         Column( modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             /**
@@ -140,6 +174,7 @@ fun FavoritesScreen(pets: List<Pet>, onPetClick: (Pet) -> Unit) {
              * Grid layout displaying all favorite pets.
              */
             LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -164,11 +199,15 @@ fun FavoritesScreen(pets: List<Pet>, onPetClick: (Pet) -> Unit) {
                                     .clip(RoundedCornerShape(12.dp)),
                                 contentScale = ContentScale.Crop
                             )
+                            val isFavorite = favoriteIds.contains(pet.id)
                             Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = null,
-                                tint = Color.Green,
-                                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorite",
+                                tint = if (isFavorite) Color.Red else Color.Green,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .clickable { viewModel.toggleFavorite(pet.id) }
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))

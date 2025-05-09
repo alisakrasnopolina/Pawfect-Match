@@ -21,12 +21,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,34 +39,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.example.pawfect_match.viewmodel.FavoritesViewModel
+import com.example.pawfect_match.viewmodel.PetfinderViewModel
 
 /**
  * Preview version of the pet detail screen with dummy pet data.
  */
-@Preview
-@Composable
-fun PreviewPetDetailScreen() {
-    PetDetailScreen(
-        pet = PetDetails(
-            name = "Mochi",
-            breed = "Abyssinian",
-            distance = "1.2 km",
-            imageUrl = "",
-            gender = "Male",
-            age = "Adult",
-            size = "Medium",
-            shelterName = "Happy Tails Animal Rescue",
-            shelterAddress = "123 Paws Street, NYC, NY 10001",
-            description = "Mochi is a stunning Abyssinian cat with a warm, golden coat...",
-            traits = "Affectionate, Curious, Playful",
-            idealHome = "A home with toys, sunshine and lots of love",
-            adoptionInfo = "Contact the shelter at (555) 123-4567. Mochi is vaccinated and ready."
-        ),
-        onBackClick = {},
-        onAdoptClick = {}
-    )
-}
+//@Preview
+//@Composable
+//fun PreviewPetDetailScreen() {
+//    PetDetailScreen(
+//        pet = PetDetails(
+//            name = "Mochi",
+//            breed = "Abyssinian",
+//            distance = "1.2 km",
+//            imageUrl = "",
+//            gender = "Male",
+//            age = "Adult",
+//            size = "Medium",
+//            shelterName = "Happy Tails Animal Rescue",
+//            shelterAddress = "123 Paws Street, NYC, NY 10001",
+//            description = "Mochi is a stunning Abyssinian cat with a warm, golden coat...",
+//            traits = "Affectionate, Curious, Playful",
+//            idealHome = "A home with toys, sunshine and lots of love",
+//            adoptionInfo = "Contact the shelter at (555) 123-4567. Mochi is vaccinated and ready."
+//        ),
+//        onBackClick = {},
+//        onAdoptClick = {}
+//    )
+//}
 
 /**
  * Detailed screen that displays information about a selected pet.
@@ -73,7 +80,10 @@ fun PreviewPetDetailScreen() {
  * @param onAdoptClick Callback triggered when the adopt button is pressed.
  */
 @Composable
-fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -> Unit) {
+fun PetDetailScreen(navController: NavController, favoritesViewModel: FavoritesViewModel, viewModel: PetfinderViewModel) {
+    val pet by viewModel.selectedPet.collectAsState()
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         /**
          * Scrollable column with pet content and shelter details.
@@ -95,7 +105,7 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                     contentDescription = "Back",
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .clickable { onBackClick() }
+                        .clickable { navController.popBackStack() }
                 )
             }
 
@@ -112,7 +122,7 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                 contentAlignment = Alignment.BottomCenter
             ) {
                 AsyncImage(
-                    model = pet.imageUrl,
+                    model = pet?.imageUrl,
                     contentDescription = "Pet Image",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -120,9 +130,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
-                Text("1 / 5", color = Color.White, modifier = Modifier
-                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(20))
-                    .padding(horizontal = 12.dp, vertical = 4.dp))
+//                Text("1 / 5", color = Color.White, modifier = Modifier
+//                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(20))
+//                    .padding(horizontal = 12.dp, vertical = 4.dp))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -132,11 +142,11 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                  * Pet name and breed.
                  */
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(pet.name, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    pet?.let { Text(it.name, fontSize = 22.sp, fontWeight = FontWeight.Bold) }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("(${pet.breed})", color = Color.Gray)
+                    Text("(${pet?.breed})", color = Color.Gray)
                 }
-                Text("\uD83D\uDCCD ${pet.distance}", color = Color.Gray)
+                Text("\uD83D\uDCCD ${pet?.distance}", color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -144,9 +154,9 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                  * Info chips for gender, age, and size.
                  */
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    InfoChip("Gender", pet.gender, Color(0xFFFFEBEE), Modifier.weight(1f))
-                    InfoChip("Age", pet.age, Color(0xFFF1F8E9), Modifier.weight(1f))
-                    InfoChip("Size", pet.size, Color(0xFFE3F2FD), Modifier.weight(1f))
+                    pet?.let { InfoChip("Gender", it.gender, Color(0xFFFFEBEE), Modifier.weight(1f)) }
+                    pet?.let { InfoChip("Age", it.age, Color(0xFFF1F8E9), Modifier.weight(1f)) }
+                    pet?.let { InfoChip("Size", it.size, Color(0xFFE3F2FD), Modifier.weight(1f)) }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -161,8 +171,8 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                         .background(Color.LightGray)) {}
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
-                        Text(pet.shelterName, fontWeight = FontWeight.SemiBold)
-                        Text(pet.shelterAddress, fontSize = 12.sp, color = Color.Gray)
+//                        Text(pet.shelterName, fontWeight = FontWeight.SemiBold)
+                        pet?.shelterAddress?.let { Text(it, fontSize = 12.sp, color = Color.Gray) }
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Navigate")
@@ -173,20 +183,20 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
                 /**
                  * Pet descriptive sections.
                  */
-                Text("About ${pet.name}", fontWeight = FontWeight.Bold)
-                Text(pet.description, lineHeight = 20.sp)
+                Text("About ${pet?.name}", fontWeight = FontWeight.Bold)
+                pet?.description?.let { Text(it, lineHeight = 20.sp) }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Personality Traits", fontWeight = FontWeight.Bold)
-                Text(pet.traits, lineHeight = 20.sp)
+                pet?.traits?.let { Text(it, lineHeight = 20.sp) }
 
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Ideal Home", fontWeight = FontWeight.Bold)
-                Text(pet.idealHome, lineHeight = 20.sp)
+//                Spacer(modifier = Modifier.height(16.dp))
+//                Text("Ideal Home", fontWeight = FontWeight.Bold)
+//                Text(pet.idealHome, lineHeight = 20.sp)
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Adoption Information", fontWeight = FontWeight.Bold)
-                Text(pet.adoptionInfo, lineHeight = 20.sp)
+                pet?.adoptionInfo?.let { Text(it, lineHeight = 20.sp) }
 
                 Spacer(modifier = Modifier.height(80.dp))
             }
@@ -204,19 +214,21 @@ fun PetDetailScreen(pet: PetDetails, onBackClick: () -> Unit, onAdoptClick: () -
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val isFavorite = pet?.let { favoriteIds.contains(it.id) }
             Icon(
-                imageVector = Icons.Default.FavoriteBorder,
+                imageVector = if (isFavorite == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                 contentDescription = "Favorite",
+                tint = if (isFavorite == true) Color.Red else Color.Green,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
                     .background(Color(0xFFFFF3E0))
-                    .padding(12.dp),
-                tint = Color.Green
+                    .padding(12.dp)
+                    .clickable { pet?.let { favoritesViewModel.toggleFavorite(it.id) } }
             )
             Spacer(modifier = Modifier.width(16.dp))
             Button(
-                onClick = onAdoptClick,
+                onClick = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -256,21 +268,4 @@ fun InfoChip(
 }
 
 
-/**
- * Data class containing all pet-related information for the detail screen.
- */
-data class PetDetails(
-    val name: String,
-    val breed: String,
-    val distance: String,
-    val imageUrl: String,
-    val gender: String,
-    val age: String,
-    val size: String,
-    val shelterName: String,
-    val shelterAddress: String,
-    val description: String,
-    val traits: String,
-    val idealHome: String,
-    val adoptionInfo: String
-)
+

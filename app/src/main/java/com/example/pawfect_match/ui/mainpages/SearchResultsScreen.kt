@@ -1,5 +1,6 @@
 package com.example.pawfect_match.ui.mainpages
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PersonOutline
@@ -31,6 +33,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,24 +49,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import androidx.navigation.NavController
+import com.example.pawfect_match.data.model.Pet
+import com.example.pawfect_match.viewmodel.FavoritesViewModel
+import com.example.pawfect_match.viewmodel.PetfinderViewModel
 
 /**
  * Preview for the search results screen with sample pet data.
  */
-@Preview
-@Composable
-fun PreviewSearchResultsScreen() {
-    SearchResultsScreen(
-        pets = listOf(
-            Pet("Mochi", "Abyssinian", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
-            Pet("Casper", "Manx", "1.5 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg")
-        ),
-        selectedType = "Cats",
-        onTypeSelected = {},
-        // onBackClick = {},
-        onSearchClick = {}
-    )
-}
+//@Preview
+//@Composable
+//fun PreviewSearchResultsScreen() {
+//    SearchResultsScreen(
+//        pets = listOf(
+//            Pet("Mochi", "Abyssinian", "1.2 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg"),
+//            Pet("Casper", "Manx", "1.5 km", "https://i.pinimg.com/736x/d6/5e/19/d65e197e812eba65f0a407ae198c6805.jpg")
+//        ),
+//        selectedType = "Cats",
+//        onTypeSelected = {},
+//        // onBackClick = {},
+//        onSearchClick = {}
+//    )
+//}
 
 /**
  * Screen displaying the list of pets filtered by category.
@@ -74,15 +82,34 @@ fun PreviewSearchResultsScreen() {
  */
 @Composable
 fun SearchResultsScreen(
-    pets: List<Pet>,
+    navController: NavController,
+    petfinderViewModel: PetfinderViewModel,
+    favoritesViewModel: FavoritesViewModel,
     selectedType: String,
     onTypeSelected: (String) -> Unit = {},
-    // onBackClick: () -> Unit = {},
-    onSearchClick: () -> Unit = {}
 ) {
     val petTypes = listOf("Dogs", "Cats", "Rabbits", "Birds", "Reptiles", "Fish", "Primates", "Other")
     val bottomNavItems = listOf("Home", "Search", "Favorites", "Account")
     var selectedItem by remember { mutableStateOf("Search") }
+    val pets by petfinderViewModel.pets.collectAsState()
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+    var localSelectedType by remember { mutableStateOf(selectedType) }
+
+
+    LaunchedEffect(localSelectedType) {
+        petfinderViewModel.loadPetsByType(localSelectedType)
+    }
+
+//    LaunchedEffect(Unit) {
+//        userViewModel.getPreferredAnimalType { type ->
+//            Log.d("Petfinder", "$type")
+//            preferredType.value = type
+//            type?.let {
+//                Log.d("Petfinder", "type")
+//                petfinderViewModel.loadPetsByType(it)
+//            }
+//        }
+//    }
 
     Scaffold(
         /**
@@ -102,7 +129,15 @@ fun SearchResultsScreen(
                         },
                         label = { Text(item) },
                         selected = selectedItem == item,
-                        onClick = { selectedItem = item },
+                        onClick = {
+                            selectedItem = item
+                            when (item) {
+                                "Home" -> navController.navigate("home")
+                                "Search" -> navController.navigate("results")
+                                "Favorites" -> navController.navigate("favorites")
+                                "Account" -> navController.navigate("account")
+                            }
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.Green,
                             selectedTextColor = Color.Black,
@@ -135,7 +170,7 @@ fun SearchResultsScreen(
                     contentDescription = "Search",
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .clickable { onSearchClick() }
+                        .clickable {  navController.navigate("filters") }
                 )
             }
 
@@ -148,8 +183,8 @@ fun SearchResultsScreen(
                 items(petTypes) { type ->
                     FilterChipResults(
                         text = getEmojiForCategory(type) + " " + type,
-                        selected = type == selectedType,
-                        onClick = { onTypeSelected(type) }
+                        selected = type == localSelectedType,
+                        onClick = { localSelectedType = type  }
                     )
                 }
             }
@@ -172,6 +207,10 @@ fun SearchResultsScreen(
                                 .aspectRatio(1f)
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(Color.LightGray)
+                                .clickable {
+                                    petfinderViewModel.setSelectedPet(pet)
+                                    navController.navigate("petDetail")
+                                }
                         ) {
                             AsyncImage(
                                 model = pet.imageUrl,
@@ -182,12 +221,17 @@ fun SearchResultsScreen(
                                     .clip(RoundedCornerShape(12.dp)),
                                 contentScale = ContentScale.Crop
                             )
+                            val isFavorite = favoriteIds.contains(pet.id)
                             Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
+                                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorite",
-                                tint = Color.Green,
-                                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                                tint = if (isFavorite) Color.Red else Color.Green,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(8.dp)
+                                    .clickable { favoritesViewModel.toggleFavorite(pet.id) }
                             )
+
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(pet.name, fontWeight = FontWeight.SemiBold)

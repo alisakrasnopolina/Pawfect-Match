@@ -21,10 +21,12 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,27 +44,31 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.example.pawfect_match.data.firebase.FirebaseAuthManager
+import com.example.pawfect_match.data.model.User
+import com.example.pawfect_match.viewmodel.UserViewModel
 
 /**
  * Preview for the Edit Profile screen using sample person data.
  */
-@Preview(showBackground = true)
-@Composable
-fun PreviewEditProfileScreen() {
-    EditProfileScreen(
-        currentName = "Andrew Ainsley",
-        currentEmail = "andrew.ainsley@yourdomain.com",
-        currentPhone = "+1 111 467 378 399",
-        currentGender = "Male",
-        currentBirthdate = "12/25/1995",
-        currentProfileUrl = "https://i.imgur.com/X5jvG3F.png", // Пример URL
-        onSave = { name, email, phone, gender, birthdate, photoUrl ->
-            // Ничего не делаем в превью
-        },
-        onBack = { }
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewEditProfileScreen() {
+//    EditProfileScreen(
+//        currentName = "Andrew Ainsley",
+//        currentEmail = "andrew.ainsley@yourdomain.com",
+//        currentPhone = "+1 111 467 378 399",
+//        currentGender = "Male",
+//        currentBirthdate = "12/25/1995",
+//        currentProfileUrl = "https://i.imgur.com/X5jvG3F.png", // Пример URL
+//        onSave = { name, email, phone, gender, birthdate, photoUrl ->
+//            // Ничего не делаем в превью
+//        },
+//        onBack = { }
+//    )
+//}
 
 /**
  * Composable screen that allows users to edit their profile information.
@@ -79,19 +85,21 @@ fun PreviewEditProfileScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
+    navController: NavController,
+    userViewModel: UserViewModel,
     currentName: String,
     currentEmail: String,
     currentPhone: String,
     currentGender: String,
     currentBirthdate: String,
     currentProfileUrl: String,
-    onSave: (String, String, String, String, String, String) -> Unit,
-    onBack: () -> Unit
+    onSave: (String, String, String, String, String, String) -> Unit
 ) {
     var name by remember { mutableStateOf(currentName) }
     var email by remember { mutableStateOf(currentEmail) }
     var phone by remember { mutableStateOf(currentPhone) }
-    var gender by remember { mutableStateOf(currentGender) }
+    var genderExpanded by remember { mutableStateOf(false) }
+    var selectedGender by remember { mutableStateOf(currentGender) }
     var birthdate by remember { mutableStateOf(currentBirthdate) }
     var profileUrl by remember { mutableStateOf(currentProfileUrl) }
 
@@ -111,7 +119,7 @@ fun EditProfileScreen(
                 contentDescription = "Back",
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .clickable { onBack() }
+                    .clickable { navController.popBackStack() }
             )
             Text(
                 text = "My Profile",
@@ -181,21 +189,34 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         ExposedDropdownMenuBox(
-            expanded = false,
-            onExpandedChange = {}
+            expanded = genderExpanded,
+            onExpandedChange = { genderExpanded = !genderExpanded }
         ) {
             OutlinedTextField(
-                value = gender,
+                value = selectedGender,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Gender") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
-                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                     .fillMaxWidth()
+
             )
+            ExposedDropdownMenu(
+                expanded = genderExpanded,
+                onDismissRequest = { genderExpanded = false }
+            ) {
+                genderOptions.forEach { gender ->
+                    DropdownMenuItem(
+                        text = { Text(gender) },
+                        onClick = {
+                            selectedGender = gender
+                            genderExpanded = false
+                        }
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -216,7 +237,9 @@ fun EditProfileScreen(
          * Action button at the bottom: Save (filled).
          */
         Button(
-            onClick = { onSave(name, email, phone, gender, birthdate, profileUrl) },
+            onClick = {
+                onSave(name, email, phone, selectedGender, birthdate, profileUrl)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),

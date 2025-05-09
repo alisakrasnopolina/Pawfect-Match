@@ -13,6 +13,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.pawfect_match.viewmodel.UserViewModel
 
 /**
  * First step in the onboarding flow.
@@ -29,13 +35,15 @@ import androidx.compose.ui.unit.sp
  * and a "Continue" button fixed to the bottom.
  */
 @Composable
-@Preview
-fun StepOne_SelectUserType() {
+// @Preview
+fun StepOne_SelectUserType(navController: NavController, userViewModel: UserViewModel) {
+    var selectedType by remember { mutableStateOf("") }
+
     Column(modifier = Modifier.padding(24.dp)) {
         /**
          * Top bar with progress and back navigation (disabled here).
          */
-        OnboardingTopBar(step = 1, onBack = { /* TODO: вернуться назад */ })
+        OnboardingTopBar(step = 1, onBack = { navController.popBackStack() })
 
         /**
          * Main headline.
@@ -59,7 +67,7 @@ fun StepOne_SelectUserType() {
          * Option button for Pet Owners or Organizations.
          */
         Button(
-            onClick = { /* TODO */ },
+            onClick = { selectedType = "owner" },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
@@ -73,7 +81,7 @@ fun StepOne_SelectUserType() {
          * Option button for Pet Adopters.
          */
         Button(
-            onClick = { /* TODO */ },
+            onClick = { selectedType = "adopter" },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
@@ -90,7 +98,10 @@ fun StepOne_SelectUserType() {
             modifier = Modifier.fillMaxSize()
         ) {
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    userViewModel.updateField("userType", selectedType)
+                    navController.navigate("onboarding2")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),

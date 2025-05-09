@@ -30,6 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.pawfect_match.viewmodel.UserViewModel
 
 /**
  * Step two in the onboarding flow where the user selects a type of animal to adopt.
@@ -38,8 +40,8 @@ import androidx.compose.ui.unit.sp
  * Includes a "Continue" button and onboarding progress bar.
  */
 @Composable
-@Preview
-fun StepTwo_SelectAnimalType() {
+//@Preview
+fun StepTwo_SelectAnimalType(navController: NavController, userViewModel: UserViewModel) {
     val selectedIndex = remember { mutableStateOf(-1) }
 
     /**
@@ -64,7 +66,7 @@ fun StepTwo_SelectAnimalType() {
         /**
          * Step progress indicator with back button (step 2 of 3).
          */
-        OnboardingTopBar(step = 2, onBack = { /* TODO: вернуться назад */ })
+        OnboardingTopBar(step = 2, onBack = { navController.popBackStack() })
 
         /**
          * Main headline and explanation.
@@ -135,7 +137,13 @@ fun StepTwo_SelectAnimalType() {
             modifier = Modifier.fillMaxSize()
         ) {
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    val type = animalTypes.getOrNull(selectedIndex.value)
+                    type?.let {
+                        userViewModel.updateField("preferredAnimalType", it)
+                        navController.navigate("onboarding3")
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
